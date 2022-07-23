@@ -16,7 +16,6 @@
       #container {
          position: fixed;
          padding: 0;
-         position: absolute;
          height: 100%;
          width: 100%;
          display: flex;
@@ -24,33 +23,35 @@
       canvas{
          position: relative;
          display: flex;
-         width: 480px;
-         height: 360px;
          left: 50%;
          top: 50%;
          transform: translate(-50%,-50%);
          border: #888 solid 30px;
       }
-      h5{
-         display: flex;
-         position: absolute;
-         margin-top: 0;
-         clear: both;
-         text-align: center;
-         width: 100%;
-         height: 30px;
-      }
 
    </style>
 </head>
 <body id="body">
-   <div id="container">
-      <canvas id="canvas"></canvas>
-      <h5 id = "h5_1"></h5>
-      <h5 id = "h5_2" style="margin-top: 30px;"></h5>
+   <div id="container" style="z-index: 1;">
+      <!-- Snake & Apples are here -->
+      <!-- <canvas id="canvas_1"></canvas> -->
+      <!-- The background board is here -->
+      <canvas id="canvas_2" style="z-index: 2;" width="160" height="160"></canvas>
 
    </div>
    
 </body>
-<script src="js/clarity.js"></script>
+<script>
+   /* 简易json */
+   window.setting = {
+      width: 16,
+      height: 16,
+      appleColor: "red"
+   }
+
+   /* 棋盘的大小 */
+
+</script>
+<script src="js/bgDrawing.js"></script>
+<!-- <script src="js/clarity.js"></script> -->
 </html>
