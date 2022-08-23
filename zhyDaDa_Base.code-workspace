@@ -16,5 +16,9 @@
 			"path": "..\\..\\编程工具箱\\vsNote"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"editor.formatOnPaste": true,
+		"editor.autoIndent": "full",
+		"editor.experimental.pasteActions.enabled": true
+	}
 }
