@@ -11,16 +11,12 @@
         cvs_h = cvs.height,
         w = cvs_w / setting_w,
         h = cvs_h / setting_h;
-        
-        console.log('w: ', w);
-        console.log('h: ', h);
 
     function DrawBox(x, y, w, h) {
         //相邻格子分配深浅两种颜色
-        let b = (x + y) % 2 == 0 ? "#C7EDCC" : "#B2D3B6";
+        let b = (x + y) % 2 == 0 ? theme.color(0) : theme.color(1);
         ctx.fillStyle = b;
         ctx.fillRect(x * w, y * h, w, h);
-        console.log('x * w, y * h, w, h: ', x * w, y * h, w, h);
     }
 
     //画出每个格子
@@ -29,4 +25,9 @@
             DrawBox(i, j, w, h);
         }
     }
+
+    //刷上背景油漆
+    document.getElementById("body").style.backgroundColor = theme.color(2);
+    //修改边框的颜色
+    document.getElementById("canvas_2").style.border = theme.color(3)+" solid 30px";
 }(setting.width, setting.height)
