@@ -61,7 +61,7 @@
    setting.wall = function () {
       switch (setting.mode) {
          case 0:
-            return [];//要用真实坐标表示        
+            return []; //要用真实坐标表示        
             break;
 
          default:
@@ -84,7 +84,7 @@
    ]; //0: 棋盘浅色, 1: 棋盘深色, 2: 背景浅色, 3: 边框深色, 4: 蛇身颜色, 5: 蛇头颜色, 6: 苹果颜色
 
    /* div: 玩家按键 */
-   var arrowKey;
+   var arrowKey = "left";
    window.onkeydown = function (e) {
       let k = e.keyCode;
       switch (k) {

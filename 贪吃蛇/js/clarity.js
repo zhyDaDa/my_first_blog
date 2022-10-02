@@ -92,7 +92,11 @@ function drawSquare(X, Y, color) {
 /* div: 核心函数 */
 // 创建 map,snake,apple
 var map = [],
-    snake = [],
+    snake_1 = {
+        snake: [],
+        buffs: { doubleScore: false, bigMouse: false, moreLife: false },
+        score: 0
+    },
     apple = { x: 1, y: 1 };
 
 /**
@@ -101,7 +105,7 @@ var map = [],
  */
 function gameSetUp() {
     refreshMap();
-    snake = [
+    snake_1.snake = [
         { x: 4, y: 2 },
         { x: 3, y: 2 },
         { x: 2, y: 2 },
@@ -118,24 +122,25 @@ function gameSetUp() {
  * 如果反向就不会有反应, 与现状相比做判断
  */
 function moveSnake() {
+    let snake = snake_1.snake;
     for (let i = 0; i < snake.length; i++) {
         let theSnake = snake[snake.length - i - 1];
         if (i == snake.length - 1) {//对于蛇头
             switch (arrowKey) {
                 case "up":
-                    if (snake[2].y - snake[1].y == 1 || snake[2].y - snake[1].y == h - 1) { snake[0].y += 1 }
+                    if (snake[2].y - snake[1].y == 1 || snake[2].y - snake[1].y == setting.height - 1) { snake[0].y -= 1 }
                     else { snake[0].y -= 1 }
                     break;
                 case "down":
-                    if (snake[2].y - snake[1].y == -1 || snake[2].y - snake[1].y == 1 - h) { snake[0].y -= 1 }
+                    if (snake[2].y - snake[1].y == -1 || snake[2].y - snake[1].y == 1 - setting.height) { snake[0].y += 1 }
                     else { snake[0].y += 1 }
                     break;
                 case "left":
-                    if (snake[2].x - snake[1].x == -1 || snake[2].x - snake[1].x == 1 - w) { snake[0].x += 1 }
+                    if (snake[2].x - snake[1].x == -1 || snake[2].x - snake[1].x == setting.width - 1) { snake[0].x += 1 }
                     else { snake[0].x -= 1 }
                     break;
                 case "right":
-                    if (snake[2].x - snake[1].x == 1 || snake[2].x - snake[1].x == w - 1) { snake[0].x -= 1 }
+                    if (snake[2].x - snake[1].x == 1 || snake[2].x - snake[1].x == 1 - setting.width) { snake[0].x -= 1 }
                     else { snake[0].x += 1 }
                     break;
                 default:
@@ -150,18 +155,19 @@ function moveSnake() {
 
 // 检查碰撞, 返回碰撞结果
 function checkCollasion() {
+    let snake = snake_1.snake;
     let head = snake[0];//蛇头
     //#region 检查出地图的情况 
     if (head.y < 1) {
         //如果是经典模式, 把出去的放到对应位置
         if (setting.mode == 0) {
-            snake[0].y = h;
+            snake[0].y = setting.height;
             checkCollasion();
         } else {
             return 21;
         }
     }
-    else if (head.y > h) {
+    else if (head.y > setting.height) {
         //如果是经典模式, 把出去的放到对应位置
         if (setting.mode == 0) {
             snake[0].y = 1;
@@ -173,13 +179,13 @@ function checkCollasion() {
     else if (head.x < 1) {
         //如果是经典模式, 把出去的放到对应位置
         if (setting.mode == 0) {
-            snake[0].x = w;
+            snake[0].x = setting.width;
             checkCollasion();
         } else {
             return 23;
         }
     }
-    else if (head.x > w) {
+    else if (head.x > setting.width) {
         //如果是经典模式, 把出去的放到对应位置
         if (setting.mode == 0) {
             snake[0].x = 1;
@@ -243,8 +249,8 @@ function getNewLoc(apple) {
 function refreshApple() {
     getNewLoc(apple);
     //排除在蛇身上的情况
-    for (let i = 0; i < snake.length; i++) {
-        const s = snake[i];
+    for (let i = 0; i < snake_1.snake.length; i++) {
+        const s = snake_1.snake[i];
         if (s.x == apple.x && s.y == apple.y) refreshApple();
     }
     //排除撞墙
@@ -267,8 +273,8 @@ function settleApple() {
  * 把snake画到map上
  */
 function settleSnake() {
-    for (let i = 0; i < snake.length; i++) {
-        const theSnake = snake[i];
+    for (let i = 0; i < snake_1.snake.length; i++) {
+        const theSnake = snake_1.snake[i];
         let theSnakeLoc = map[theSnake.y - 1][theSnake.x - 1];
         theSnakeLoc.occupy = i == 0 ? 1 : 2;
         theSnakeLoc.color = theme.color(i == 0 ? 5 : 4);
@@ -287,6 +293,37 @@ function drawMap() {
 
 }
 
+/**
+ * 按照buff情况调整分数, 输入零就代表获得buff, 否则只算分
+ * @param {'snake_1'} snake 对象蛇
+ * @param {*} score 得到的分数, 默认为0, 即获得了buff
+ * @param {"doubleScore"|"bigMouse"|"moreLife"|"scissorCut"} buff 输入获得的buff对应的代号
+ * @returns 返回当前分数, 如果获得buff返回false
+ */
+function changeScore(snake, score = 0, buff) {
+    //传入0就按照buff分类生效
+    if (score == 0) {
+        getBuff(buff);
+        return false;
+    } else if (score > 0) {
+        //否则按buff修改分数
+        if (buffs.doubleScore) {
+            score *= 2;
+        }
+        //最后再结账
+        snake.score += score;
+    }
+    return snake.score;
+}
+
+/**
+ * 实现buff的效果
+ * @param {"doubleScore"|"bigMouse"|"moreLife"|"scissorCut"} buff 输入获得的buff对应的代号
+ */
+function getBuff() {
+    //ToDo: 一个switch
+}
+
 //core
 function clarity() {
     //初始化地图数组
@@ -301,8 +338,8 @@ function clarity() {
             break;
         //吃到苹果就算分, 并且刷新苹果位置
         case 1:
-            changeScore(1);//接受正数的时候要考虑分数加倍的情况
-            generateApple();
+            changeScore(snake_1, 1);
+            refreshApple();
             break;
         //collation就结束
         //对应不同的result做不同的ending(例如死亡分类计数)
@@ -355,7 +392,7 @@ function clarity() {
     settleSnake();
     settleApple();
     //先把地图擦干净
-    // ctx.clearRect(0, 0, cvs_w, cvs_h);
+    ctx.clearRect(0, 0, cvs_w, cvs_h);
     //把map数组渲染出来
     drawMap();
 }
