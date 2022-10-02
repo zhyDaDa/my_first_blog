@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 
 <head>
    <meta charset="UTF-8">
@@ -52,15 +52,26 @@
 <script>
    /* div: 简易json */
    var setting = {
+      mode: 0,
       width: 16,
       height: 16,
       themeNum: 0,
       appleColor: "red"
    }
+   setting.wall = function () {
+      switch (setting.mode) {
+         case 0:
+            return [];//要用真实坐标表示        
+            break;
+
+         default:
+            break;
+      }
+   }()
    /* 配色方案 */
    const theme = {
       /**
-       * [棋盘浅色, 棋盘深色, 背景浅色, 边框深色, 蛇身颜色, 蛇头颜色]
+       * 0: 棋盘浅色, 1: 棋盘深色, 2: 背景浅色, 3: 边框深色, 4: 蛇身颜色, 5: 蛇头颜色, 6: 苹果颜色
        * @param {*} choice 选择颜色对应的数字
        * @returns 一个带#的颜色字符
        */
@@ -69,8 +80,8 @@
       }
    }
    const allColors = [
-      ["#C7CDFF", "#83B6FD", "#248AD5", "#0E6AAB", "#FFAA40", "#FF6C02"]
-   ]; //[棋盘浅色, 棋盘深色, 背景浅色, 边框深色, 蛇身颜色, 蛇头颜色]
+      ["#C7CDFF", "#83B6FD", "#248AD5", "#0E6AAB", "#FFAA40", "#FF6C02", "#FF005D"]
+   ]; //0: 棋盘浅色, 1: 棋盘深色, 2: 背景浅色, 3: 边框深色, 4: 蛇身颜色, 5: 蛇头颜色, 6: 苹果颜色
 
    /* div: 玩家按键 */
    var arrowKey;

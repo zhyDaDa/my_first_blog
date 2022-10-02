@@ -79,9 +79,9 @@ function drawApple(X, Y, appleColor) {
 }
 
 /**
- * 
- * @param {*} X 
- * @param {*} Y 
+ * X,Y是方块左上角的坐标(从0开始的)
+ * @param {*} X 左上角坐标
+ * @param {*} Y 左上角坐标
  * @param {*} color 
  */
 function drawSquare(X, Y, color) {
@@ -90,46 +90,209 @@ function drawSquare(X, Y, color) {
 }
 
 /* div: 核心函数 */
-
 // 创建 map,snake,apple
-var map = [], snake = [], apple = { x: 0, y: 0 };
+var map = [],
+    snake = [],
+    apple = { x: 1, y: 1 };
+
+/**
+ * 启动游戏
+ * 画好苹果和蛇
+ */
+function gameSetUp() {
+    refreshMap();
+    snake = [
+        { x: 4, y: 2 },
+        { x: 3, y: 2 },
+        { x: 2, y: 2 },
+        { x: 1, y: 2 }
+    ];
+    refreshApple();
+    settleApple();
+    settleSnake();
+    drawMap();
+}
+
+/**
+ * 按照arrowkey的指向移动蛇
+ * 如果反向就不会有反应, 与现状相比做判断
+ */
+function moveSnake() {
+    for (let i = 0; i < snake.length; i++) {
+        let theSnake = snake[snake.length - i - 1];
+        if (i == snake.length - 1) {//对于蛇头
+            switch (arrowKey) {
+                case "up":
+                    if (snake[2].y - snake[1].y == 1 || snake[2].y - snake[1].y == h - 1) { snake[0].y += 1 }
+                    else { snake[0].y -= 1 }
+                    break;
+                case "down":
+                    if (snake[2].y - snake[1].y == -1 || snake[2].y - snake[1].y == 1 - h) { snake[0].y -= 1 }
+                    else { snake[0].y += 1 }
+                    break;
+                case "left":
+                    if (snake[2].x - snake[1].x == -1 || snake[2].x - snake[1].x == 1 - w) { snake[0].x += 1 }
+                    else { snake[0].x -= 1 }
+                    break;
+                case "right":
+                    if (snake[2].x - snake[1].x == 1 || snake[2].x - snake[1].x == w - 1) { snake[0].x -= 1 }
+                    else { snake[0].x += 1 }
+                    break;
+                default:
+                    console.log("没有定义的方向(arrowkey)");
+                    break;
+            }//转方向, 基础判断
+        } else {//对于蛇身
+            snake[snake.length - i - 1] = deepCopy(snake[snake.length - i - 2], false);//把后面的变成自己前面的        
+        }
+    }//for循环
+}
 
 // 检查碰撞, 返回碰撞结果
 function checkCollasion() {
-    
+    let head = snake[0];//蛇头
+    //#region 检查出地图的情况 
+    if (head.y < 1) {
+        //如果是经典模式, 把出去的放到对应位置
+        if (setting.mode == 0) {
+            snake[0].y = h;
+            checkCollasion();
+        } else {
+            return 21;
+        }
+    }
+    else if (head.y > h) {
+        //如果是经典模式, 把出去的放到对应位置
+        if (setting.mode == 0) {
+            snake[0].y = 1;
+            checkCollasion();
+        } else {
+            return 22;
+        }
+    }
+    else if (head.x < 1) {
+        //如果是经典模式, 把出去的放到对应位置
+        if (setting.mode == 0) {
+            snake[0].x = w;
+            checkCollasion();
+        } else {
+            return 23;
+        }
+    }
+    else if (head.x > w) {
+        //如果是经典模式, 把出去的放到对应位置
+        if (setting.mode == 0) {
+            snake[0].x = 1;
+            checkCollasion();
+        } else {
+            return 24
+        }
+    }
+    //#endregion
+    //检查撞墙
+    for (let i = 0; i < setting.wall.length; i++) {
+        const w = setting.wall[i];
+        if (w.x == head.x && w.y == head.y) {
+            return 25;
+        }
+
+    }
+    //检查撞自己
+    for (let i = 1; i < snake.length; i++) {
+        const s = snake[i];
+        if (s.x == head.x && s.y == head.y) {
+            return 26;
+        }
+    }
 }
 
 /**
  * 初始化地图
  */
 function refreshMap() {
-    for (let i = 0; i < setting.width; i++) {
+    for (let i = 0; i < setting.height; i++) {
         map[i] = [];
-        for (let j = 0; j < setting.height; j++) {
+        for (let j = 0; j < setting.width; j++) {
             map[i][j] = {
-                occupy: 0,  //0代表空, 1代表蛇头, 2代表蛇尾, 3代表苹果
+                occupy: 0,  //0代表空, 1代表蛇头, 2代表蛇尾, 3代表苹果, 4代表地图mod墙
                 color: "transparent",
             }
         }
     }
-    //如果有mode就放在这里
+    for (let i = 0; i < setting.wall.length; i++) {
+        const w = setting.wall[i];
+        map[w[1] - 1][w[0] - 1] = {
+            occupy: 4,
+            color: theme.color(3)
+        };
+    }
 }
 
+/**
+ * 改变一个对象(苹果)为随机位置(x,y)
+ * @param {"apple"} apple 一般放置苹果对象
+ */
+function getNewLoc(apple) {
+    apple.x = Math.random() * setting.width + 1 >> 0;
+    apple.y = Math.random() * setting.height + 1 >> 0;
+}
+
+/**
+ * 为苹果找一个没有被占用的位置
+ */
+function refreshApple() {
+    getNewLoc(apple);
+    //排除在蛇身上的情况
+    for (let i = 0; i < snake.length; i++) {
+        const s = snake[i];
+        if (s.x == apple.x && s.y == apple.y) refreshApple();
+    }
+    //排除撞墙
+    for (let i = 0; i < setting.wall.length; i++) {
+        const w = setting.wall[i];
+        if (w[0] == apple.x && w[1] == apple.y) refreshApple();
+    }
+}
+
+/**
+ * 把apple画到map上
+ */
+function settleApple() {
+    let appleLoc = map[apple.y - 1][apple.x - 1];
+    appleLoc.occupy = 3;
+    appleLoc.color = theme.color(6);
+}
+
+/**
+ * 把snake画到map上
+ */
+function settleSnake() {
+    for (let i = 0; i < snake.length; i++) {
+        const theSnake = snake[i];
+        let theSnakeLoc = map[theSnake.y - 1][theSnake.x - 1];
+        theSnakeLoc.occupy = i == 0 ? 1 : 2;
+        theSnakeLoc.color = theme.color(i == 0 ? 5 : 4);
+    }
+}
 
 /**
  * 把map数组渲染出来
  */
 function drawMap() {
-    for (let i = 0; i < setting.width; i++) {
-        for (let j = 0; j < setting.height; j++) {
-            map[i][j]// TODO:渲染出来
+    for (let i = 0; i < setting.height; i++) {
+        for (let j = 0; j < setting.width; j++) {
+            drawSquare(j, i, map[i][j].color)
         }
     }
 
 }
 
-//渲染主循环
+//core
 function clarity() {
+    //初始化地图数组
+    refreshMap();
+    //改变代表蛇的数组信息
+    moveSnake();
     //检查按照移动方向的下一步的collation
     let result = checkCollasion();
     switch (result) {
@@ -143,15 +306,65 @@ function clarity() {
             break;
         //collation就结束
         //对应不同的result做不同的ending(例如死亡分类计数)
+        case 21:
+            alert("你撞到了上边的墙");
+            //recordScore();
+            //recorDeath();
+            //refreshHighScore();
+            gameSetUp();
+            break;
+        case 22:
+            alert("你撞到了下边的墙");
+            //recordScore();
+            //recorDeath();
+            //refreshHighScore();
+            gameSetUp();
+            break;
+        case 23:
+            alert("你撞到了左边的墙");
+            //recordScore();
+            //recorDeath();
+            //refreshHighScore();
+            gameSetUp();
+            break;
+        case 24:
+            alert("你撞到了右边的墙");
+            //recordScore();
+            //recorDeath();
+            //refreshHighScore();
+            gameSetUp();
+            break;
+        case 25:
+            alert("你撞到了实心墙");
+            //recordScore();
+            //recorDeath();
+            //refreshHighScore();
+            gameSetUp();
+            break;
+        case 26:
+            alert("你撞到了自己");
+            //recordScore();
+            //recorDeath();
+            //refreshHighScore();
+            gameSetUp();
+            break;
 
-    }
-    //改变代表蛇的数组信息
-    moveSnake();
-    //初始化地图数组
-    refreshMap();
+
+    }//死亡情况判断的switch
     //把蛇和苹果的位置到map数组中
+    settleSnake();
+    settleApple();
     //先把地图擦干净
     // ctx.clearRect(0, 0, cvs_w, cvs_h);
     //把map数组渲染出来
     drawMap();
 }
+
+/* 
+    map[i][j] = {
+        occupy: 0,  //0代表空, 1代表蛇头, 2代表蛇尾, 3代表苹果, 4代表地图mod墙
+        color: "transparent",
+    }
+*/
+
+gameSetUp();
