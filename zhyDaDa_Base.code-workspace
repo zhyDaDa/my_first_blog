@@ -14,11 +14,18 @@
 		},
 		{
 			"path": "..\\..\\编程工具箱\\vsNote"
+		},
+		{
+			"path": "..\\..\\编程工具箱\\C语言项目"
+		},
+		{
+			"path": "D:\\Desktop"
 		}
 	],
 	"settings": {
 		"editor.formatOnPaste": true,
 		"editor.autoIndent": "full",
-		"editor.experimental.pasteActions.enabled": true
+		"editor.experimental.pasteActions.enabled": true,
+		"editor.accessibilitySupport": "on"
 	}
 }
