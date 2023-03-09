@@ -2019,8 +2019,10 @@ div.set:hover div.head {
 }
 
 .content>span {
+    z-index: 99;
     position: absolute;
-    bottom: 10px;
+    bottom: 15px;
+    right: 15px;
     color: #bbb;
     text-align: center;
     text-transform: uppercase;

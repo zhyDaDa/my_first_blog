@@ -18,6 +18,7 @@
 .main_Logo2 {
     position: absolute;
     display: block;
+    opacity: .0;
     top: 50%;
     left: 50%;
 }

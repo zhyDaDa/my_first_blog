@@ -34,9 +34,17 @@ const SETTING = {
     colors: [
         //[light,deep]
         ["#FBA3A3", "#C95758"],
-        ["#83B6FD", "#0E6AAB"],
-        ["#A4DDF0", "#5C7FA7"],
-        ["#44E2FF", "#A162F7"],
+        ["#DA4453", "#89216B"],
+        ["#f7b733", "#fc4a1a"],
+        ["#E29587", "#D66D75"],
+        ["#a8c0ff", "#3f2b96"],
+        ["#56CCF2", "#2F80ED"],
+        ["#F2C94C", "#F2994A"],
+        ["#B2FEFA", "#0ED2F7"],
+        ["#00c6ff", "#0072ff"],
+        ["#6dd5ed", "#2193b0"],
+        ["#", "#"],
+        ["#", "#"],
     ],
     ApplySetting: () => {
         document.documentElement.style.setProperty("--color-light", SETTING.colors[SETTING.settings.theme_color][0]);

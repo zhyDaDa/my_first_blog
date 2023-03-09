@@ -72,6 +72,10 @@ hr {
     margin-left: 2%;
 }
 
+.content {
+    overflow-y: auto;
+}
+
 .content>span:hover {
     color: #fff;
     background: var(--color-deep);
@@ -206,6 +210,10 @@ form>h1 {
     left: 0;
 }
 
+.page {
+    overflow-y: auto;
+}
+
 #page1 {
     width: 94%;
     align-items: center;
@@ -336,7 +344,7 @@ table.book-info>tbody>tr td:last-child {
     background-color: #fff;
     color: #bcbcbc;
     display: inline-block;
-    padding: 20px 40px;
+    padding: 2.3vh 2vw;
     opacity: 0.8;
     cursor: pointer;
     z-index: 0;
@@ -529,7 +537,8 @@ table.book-info>tbody>tr td:last-child {
 
 .setting-pannel_2_1 {
     display: grid;
-    grid-template-columns: repeat(4, 25%);
+    grid-template-columns: repeat(5, 20%);
+    grid-row-gap: 2vh;
     align-content: center;
     justify-items: center;
 }
@@ -547,15 +556,39 @@ table.book-info>tbody>tr td:last-child {
 }
 
 .setting-color-grid[value="1"] {
-    background: linear-gradient(138deg, #83B6FD, #0E6AAB);
+    background: linear-gradient(138deg, #DA4453, #89216B);
 }
 
 .setting-color-grid[value="2"] {
-    background: linear-gradient(138deg, #A4DDF0, #5C7FA7);
+    background: linear-gradient(138deg, #f7b733, #fc4a1a);
 }
 
 .setting-color-grid[value="3"] {
-    background: linear-gradient(138deg, #44E2FF, #A162F7);
+    background: linear-gradient(138deg, #E29587, #D66D75);
+}
+
+.setting-color-grid[value="4"] {
+    background: linear-gradient(138deg, #a8c0ff, #3f2b96);
+}
+
+.setting-color-grid[value="5"] {
+    background: linear-gradient(138deg, #56CCF2, #2F80ED);
+}
+
+.setting-color-grid[value="6"] {
+    background: linear-gradient(138deg, #F2C94C, #F2994A);
+}
+
+.setting-color-grid[value="7"] {
+    background: linear-gradient(138deg, #B2FEFA, #0ED2F7);
+}
+
+.setting-color-grid[value="8"] {
+    background: linear-gradient(138deg, #00c6ff, #0072ff);
+}
+
+.setting-color-grid[value="9"] {
+    background: linear-gradient(138deg, #6dd5ed, #2193b0);
 }
 
 .setting-color-grid:checked {
