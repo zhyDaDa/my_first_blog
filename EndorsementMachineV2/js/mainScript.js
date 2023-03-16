@@ -19,6 +19,7 @@ var deepCopy = function(source, isArray) {
     return result;
 }
 
+
 /**
  * 设置, 具体设置的值在settings中
  */
@@ -47,8 +48,12 @@ const SETTING = {
         ["#", "#"],
     ],
     ApplySetting: () => {
-        document.documentElement.style.setProperty("--color-light", SETTING.colors[SETTING.settings.theme_color][0]);
-        document.documentElement.style.setProperty("--color-deep", SETTING.colors[SETTING.settings.theme_color][1]);
+        let lightColor = SETTING.colors[SETTING.settings.theme_color][0];
+        let deepColor = SETTING.colors[SETTING.settings.theme_color][1];
+        document.documentElement.style.setProperty("--color-light", lightColor);
+        document.documentElement.style.setProperty("--color-deep", deepColor);
+        // document.documentElement.style.setProperty("--color-lighter", adjustLightness(lightColor, 1.2));
+        // document.documentElement.style.setProperty("--color-deeper", adjustLightness(deepColor, 0.8));
 
     },
     GetSettingsFromLocalStorageThenApply: () => {
@@ -123,7 +128,7 @@ const BOOKS = {
  * 构造Book的方法, 得到一个Book对象
  * @param {string} rawBook 包含这本辞书所有信息的未加工的字符串
  */
-function Book(rawBook = "") {
+function Book(rawBook = '{}') {
     let book_obj = JSON.parse(rawBook);
     this.name = book_obj.name || "无名辞书";
     this.mode = book_obj.mode || "填空类型";
@@ -202,6 +207,14 @@ function GetTarget() {
 }
 
 /**
+ * 得到输入框rectify_3这个element
+ * @returns rectify_3元素
+ */
+function GetRectify3() {
+    return $('#rectify_3')[0];
+}
+
+/**
  * 获取辞书类型
  * @param {"填空类型"|"选择类型"} modeName 辞书的类型
  * @returns {Object} 那个类型对应的类型处理对象
@@ -216,6 +229,106 @@ function GetModeByModeName(modeName) {
         default:
             console.log("在获取辞书类型时出错, 传入的错误的辞书类型是: " + modeName);
             return null;
+    }
+}
+
+/**
+ * 关于表格式录入
+ */
+const PANEL = {
+    getPanel: () => { return document.getElementById("panel") },
+    getTable: () => { return PANEL.getPanel().querySelector("table") },
+    getAddRowButton: () => { return PANEL.getPanel().querySelector("#add-row") },
+    getDeletRowButton: () => { return PANEL.getPanel().querySelector("#delet-row") },
+    getSaveDataButton: () => { return PANEL.getPanel().querySelector("#save-data") },
+    getCLoseButton: () => { return PANEL.getPanel().querySelector("#close-panel") },
+    // 显示全屏面板
+    showPanel: () => {
+        PANEL.getPanel().classList.add("show");
+    },
+
+    // 隐藏全屏面板
+    hidePanel: () => {
+        PANEL.getPanel().classList.remove("show");
+    },
+
+    // 添加新行
+    addRow: () => {
+        var newRow = document.createElement("tr");
+        newRow.innerHTML = "<td contenteditable='true'></td><td contenteditable='true'></td>";
+        PANEL.getTable().querySelector("tbody").appendChild(newRow);
+    },
+
+    // 删除所有空的行
+    deletRow: () => {
+        var rows = PANEL.getTable().querySelectorAll("tbody tr");
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var tds = row.querySelectorAll("td");
+            if (tds[0].innerText == "" && tds[1].innerText == "") {
+                row.remove();
+            }
+        }
+    },
+
+    // 载入数据
+    loadData: (data) => {
+        // 用^^分割每一行，用##分割每一列, 组成一个二维数组
+        var rows = data.split("^^").map(function(row) {
+            return row.split("##");
+        });
+
+        // 去除第一个和其他空元素
+        rows.shift();
+        rows = rows.filter(function(row) {
+            return row.length > 1;
+        });
+
+        // 获取表格元素
+        var table = PANEL.getTable();
+
+        // 清空表格
+        table.querySelector("tbody").innerHTML = "";
+
+        // 将二维数组转换为HTML字符串, 添加到表格末尾 
+        table.querySelector("tbody").innerHTML += rows.map(function(row) {
+            return "<tr><td contenteditable='true'>" + row[0] + "</td><td contenteditable='true'>" + row[1] + "</td></tr>";
+        }).join("");
+
+
+    },
+
+    // 保存数据
+    saveData: () => {
+        var data = [];
+
+        // 遍历每一行
+        PANEL.getTable().querySelectorAll("tbody tr").forEach(function(row) {
+            var rowData = [];
+
+            // 遍历每一列
+            row.querySelectorAll("td").forEach(function(cell) {
+                rowData.push(cell.innerText);
+            });
+
+            // 如果该行的两个单元格都为空，则不保存该行数据
+            if (rowData.every(function(value) { return value.trim() === "" })) {
+                return;
+            }
+
+            data.push(rowData);
+        });
+
+        // 将二维数组中的每一行用^^连接，每一列用##连接，组成一个字符串
+        data = data.map(function(row) {
+            return row.join("##");
+        }).join("^^");
+
+        // data最前面也要加上^^
+        data = "^^" + data;
+
+        GetRectify3().value = data;
+
     }
 }
 
@@ -419,9 +532,21 @@ function main() {
         $('div.content').removeClass('show');
     });
 
-    // book-grid-pannel控件
+    // table pannel控件
+    PANEL.getAddRowButton().addEventListener("click", PANEL.addRow);
+    PANEL.getDeletRowButton().addEventListener("click", PANEL.deletRow);
+    PANEL.getSaveDataButton().addEventListener("click", PANEL.saveData);
+    PANEL.getCLoseButton().addEventListener("click", PANEL.hidePanel);
 
 
 }
 
 main();
+
+/* 如果第一次使用 */
+if (BOOKS.books.length == 0) {
+    BOOKS.books.push(new Book());
+    BOOKS.RefreshBookGridPannel();
+    CURRENT.LoadBook(BOOKS.books[0]);
+    CURRENT.bookId = 0;
+}
