@@ -1,8 +1,9 @@
 .transition,
-form #confirm,
-form #showCurrent,
+form button,
+#alertBoard_3 button,
 form .question label,
 form .question input[type="text"],
+form .question textarea,
 form .question select[type="select"] {
     -moz-transition: all 0.25s cubic-bezier(0.53, 0.01, 0.35, 1.5);
     -o-transition: all 0.25s cubic-bezier(0.53, 0.01, 0.35, 1.5);
@@ -40,7 +41,8 @@ form h1 {
     width: 100%;
 }
 
-form #showCurrent {
+form button,
+#alertBoard_3 button {
     appearance: auto;
     writing-mode: horizontal-tb !important;
     text-rendering: auto;
@@ -66,8 +68,8 @@ form #showCurrent {
     margin-right: 20px;
 }
 
-form #confirm,
-form #showCurrent {
+form button,
+#alertBoard_3 button {
     margin-top: 35px;
     background-color: white;
     border: 1px solid var(--color-deep);
@@ -81,14 +83,15 @@ form #showCurrent {
     font-weight: 100;
     letter-spacing: 0.01em;
     position: relative;
+    cursor: pointer;
     z-index: 1;
     float: left;
 }
 
-form #showCurrent:hover,
-form #showCurrent:focus,
-form #confirm:hover,
-form #confirm:focus {
+form button:hover,
+form button:focus,
+#alertBoard_3 button:hover,
+#alertBoard_3 button:focus {
     color: ghostwhite;
     background-color: var(--color-light);
 }
@@ -122,6 +125,7 @@ form .question label {
 }
 
 form .question input[type="text"],
+form .question textarea,
 form .question select[type="select"] {
     appearance: none;
     background-color: none;
@@ -145,6 +149,7 @@ form .question select[type="select"] {
 }
 
 form .question input[type="text"]:focus,
+form .question textarea:focus,
 form .question select[type="select"]:focus {
     outline: none;
     background: var(--color-light);
@@ -153,6 +158,7 @@ form .question select[type="select"]:focus {
 }
 
 form .question input[type="text"]:valid,
+form .question textarea:valid,
 form .question select[type="select"]:valid {
     margin-top: 30px;
 }
@@ -174,6 +180,46 @@ form .question select[type="select"]:valid~label {
     -webkit-transform: translate(5px, -35px) scale(0.6);
     transform: translate(5px, -35px) scale(0.6);
 }
+
+form .question textarea {
+    line-height: 18px;
+    min-height: 56px;
+    border-radius: 5px;
+    resize: vertical;
+    overflow-y: auto;
+}
+
+form .question textarea:active {
+    transition: none;
+}
+
+form .question textarea:focus~label {
+    top: 48px;
+}
+
+form .question textarea:valid~label {
+    text-transform: uppercase;
+    font-style: italic;
+    -moz-transform: translate(5px, 0px) scale(0.6);
+    -ms-transform: translate(5px, 0px) scale(0.6);
+    -webkit-transform: translate(5px, 0px) scale(0.6);
+    transform: translate(5px, 0px) scale(0.6);
+}
+
+textarea::-webkit-resizer:before {
+    content: "\f0c9";
+    font-family: "FontAwesome";
+    font-size: 16px;
+    color: #333;
+}
+
+
+/* 
+    {
+    top: 5px;
+    width: 5px;
+    background-color: var(--color-deep);
+} */
 
 .simpread-theme-root {
     font-size: 62.5% !important

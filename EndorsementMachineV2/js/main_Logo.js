@@ -29,7 +29,7 @@ setTimeout(() => {
     let mask = document.getElementById("main_LogoMask");
     let parent = mask.parentElement;
     parent.removeChild(mask);
-}, 5200);
+}, 5.200);
 document.onkeydown = () => {
     if ($("#main_LogoMask").length > 0) $("#main_LogoMask")[0].style.display = "none";
 }

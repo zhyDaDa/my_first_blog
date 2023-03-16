@@ -1,8 +1,10 @@
 /* zhyDaDa edit */
 
 :root {
-    --color-light: #FBA3A3;
+    --color-light: #fba3a3;
+    --color-lighter: #aaa;
     --color-deep: #C95758;
+    --colot-deeper: #222;
     --white: #ffffff;
     --light: #f0eff3;
     --black: #000000;
@@ -74,6 +76,11 @@ hr {
 
 .content {
     overflow-y: auto;
+}
+
+.content>span {
+    position: fixed;
+    right: 8vw;
 }
 
 .content>span:hover {
@@ -395,11 +402,11 @@ table.book-info>tbody>tr td:last-child {
 }
 
 ::-webkit-scrollbar {
-    width: 5px;
+    width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    border-radius: 5px;
+    border-radius: 8px;
 }
 
 ::-webkit-scrollbar-button {
@@ -408,12 +415,12 @@ table.book-info>tbody>tr td:last-child {
 
 ::-webkit-scrollbar-thumb {
     background-color: var(--color-light);
-    border-radius: 2.5px;
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-track-piece {
     background-color: var(--grey);
-    border-radius: 2.5px;
+    border-radius: 4px;
 }
 
 .checkbox:checked~.background-color {

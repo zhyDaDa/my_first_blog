@@ -26,6 +26,7 @@
 		"editor.formatOnPaste": true,
 		"editor.autoIndent": "full",
 		"editor.experimental.pasteActions.enabled": true,
-		"editor.accessibilitySupport": "on"
+		"editor.accessibilitySupport": "on",
+		"liveServer.settings.multiRootWorkspaceName": "zhyDaDa_js_works"
 	}
 }

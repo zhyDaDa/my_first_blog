@@ -16,6 +16,7 @@
 </head>
 <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
 <script src="js/hsycmsAlert.min.js"></script>
+<script src="js/color.js"></script>
 
 
 <!-- div:BODY -->
@@ -143,26 +144,6 @@
                                     <label class="for-checkbox" for="book-2">
                                         <div data-hover="1test book 123">1test book 123</div>
                                     </label>
-                                    <!--
-						--><input class="checkbox" type="radio" name="book" id="book-3">
-                                    <label class="for-checkbox" for="book-3">
-                                        <div data-hover="1test book 123">1test book 123</div>
-                                    </label>
-                                    <!--
-						--><input class="checkbox" type="radio" name="book" id="book-4">
-                                    <label class="for-checkbox" for="book-4">
-                                        <div data-hover="2test book 123">2test book 123</div>
-                                    </label>
-                                    <!--
-						--><input class="checkbox" type="radio" name="book" id="book-5">
-                                    <label class="for-checkbox" for="book-5">
-                                        <div data-hover="2test book 123">2test book 123</div>
-                                    </label>
-                                    <!--
-						--><input class="checkbox" type="radio" name="book" id="book-6">
-                                    <label class="for-checkbox" for="book-6">
-                                        <div data-hover="5test book 123">5test book 123</div>
-                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -204,11 +185,12 @@
                                     <label>辞书类型</label>
                                 </div>
                                 <div class="question" title="格式要求详见使用说明">
-                                    <input id="rectify_3" name="rawContent" type="text" required="">
+                                    <textarea id="rectify_3" name="rawContent" title="格式要求详见使用说明" required=""></textarea>
                                     <label>带有格式的内容</label>
                                 </div>
-                                <button id="showCurrent" onclick="GLOBAL.RectifyCurrentBook();">填入当前</button>
-                                <button id="confirm" onclick="GLOBAL.flag_rectify=true;">确认修改</button>
+                                <button type="button" id="showCurrent" onclick="GLOBAL.RectifyCurrentBook();">填入当前</button>
+                                <button type="button" id="showPanel" onclick="PANEL.showPanel();PANEL.loadData(GetRectify3().value);">列表修改</button>
+                                <button type="submit" id="confirm" onclick="GLOBAL.flag_rectify=true;">确认修改</button>
                             </form>
                         </div>
 
@@ -304,9 +286,33 @@
             </div>
 
             <div class="info" style="display: none;">Click on any option</div>
-
-
         </div>
+
+        <!-- div: 一个全屏面板 -->
+        <link rel="stylesheet" href="css/panel.css" media="all">
+        <div id="panel" class="fullscreen-panel">
+            <table>
+                <thead>
+                    <tr>
+                        <th>问题</th>
+                        <th>答案</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td contenteditable="true"></td>
+                        <td contenteditable="true"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="panel-buttons">
+                <button id="add-row">添加新的一行</button>
+                <button id="delet-row">删除所有空的行</button>
+                <button id="save-data">保存数据为指定格式</button>
+                <button id="close-panel">关闭面板</button>
+            </div>
+        </div>
+
 
     </div>
     <script src="js/mainScript.js"></script>
