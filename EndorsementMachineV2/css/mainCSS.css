@@ -13,6 +13,8 @@
     --red: #da2c4d;
     --yellow: #f8ab37;
     --grey: #ecedf3;
+    --dark: #2A3950;
+    --background: #fff;
 }
 
 hr {
@@ -25,6 +27,7 @@ hr {
     right: 0;
     top: 0;
     z-index: 0;
+    overflow-y: auto;
 }
 
 .bgContainer {
@@ -696,4 +699,58 @@ table.book-info>tbody>tr td:last-child {
     line-height: 40px;
     font-size: 16px;
     color: #333;
+}
+
+.setting-cell .stepper-input {
+    display: flex;
+    /* Border */
+    border: 1px solid var(--color-deep);
+    border-radius: 0.5rem;
+    /* Size */
+    height: 1.25rem;
+    width: 10vw;
+}
+
+.setting-cell .stepper-input__button {
+    /* Reset */
+    background: var(--color-light);
+    color: var(--white);
+    border: none;
+    /* Center the content */
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    /* Size */
+    width: 1.2rem;
+}
+
+.setting-cell .stepper-input__content {
+    flex: 1;
+}
+
+.setting-cell .stepper-input__input {
+    /* Reset */
+    border: none;
+    /* Take full size of its container */
+    height: 100%;
+    width: 100%;
+    text-align: center;
+}
+
+
+/* .menu div,
+.content div,
+.content form {
+    background-color: var(--background);
+} */
+
+#more-and-less_btn {
+    width: 94%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px 20px;
+}
+
+#more-and-less_btn>button {
+    width: 48%;
 }

@@ -20,6 +20,42 @@ var deepCopy = function(source, isArray) {
 }
 
 
+// 简易的md转html
+var md2html = function(md) {
+    // 分别替换两个尖括号
+    md = md.replace(/</gm, "&lt;");
+    md = md.replace(/>/gm, "&gt;");
+
+    // 加粗
+    md = md.replace(/\*\*(.+?)\*\*/gm, "<strong>$1</strong>");
+
+    // 代码
+    md = md.replace(/\$(.+?)\$/gm, "<code>$1</code>");
+
+    // 链接
+    md = md.replace(/\[(.+?)\]\((.+?)\)/gm, "<a target='_blank' href='$2'>$1</a>");
+
+    // 句子中间的多个空格替换为html中相同数量的空格
+    md = md.replace(/  /gm, "&nbsp;&nbsp;");
+
+    // 一级标题
+    md = md.replace(/^# (.+?)$/gm, "<h1>$1</h1>");
+
+    // 二级标题
+    md = md.replace(/^## (.+?)$/gm, "<h2>$1</h2>");
+
+    // 三级标题
+    md = md.replace(/^### (.+?)$/gm, "<h3>$1</h3>");
+
+    // 其余的行前后加上p标签, 如果一行的末尾有2个空格则在末尾加上<br>
+    md = md.replace(/^(.+?)$/gm, "<p>$1</p>");
+    md = md.replace(/<p>(.+?)  <\/p>/gm, "<p>$1</p><br>");
+
+    return md;
+
+}
+
+
 /**
  * 设置, 具体设置的值在settings中
  */
@@ -63,6 +99,8 @@ const SETTING = {
             $("#setting_1")[0].checked = SETTING.settings.start_rememberLastBook;
             $("#setting_2")[0].checked = SETTING.settings.start_showSentence;
             $(".setting-color-grid[value=" + SETTING.settings.theme_color + "]")[0].checked = true;
+            $("#stepper-input__input")[0].value = SETTING.settings.poolSize ? SETTING.settings.poolSize : SETTING.settings = 5;
+
             SETTING.ApplySetting();
         } catch {
             console.log("读入设置失败, 可能是没有存储或格式错误, 已完成设置初始化");
@@ -72,6 +110,7 @@ const SETTING = {
                 start_showTutorial: true,
                 start_showSentence: false,
                 start_rememberLastBook: false,
+                poolSize: 5,
                 theme_color: 0,
             };
             SETTING.SaveSettingsToLocalStorage();
@@ -153,6 +192,11 @@ const CURRENT = {
     contentArray: "",
     rawContent: "",
     question: "",
+    questionId: 0,
+    // questionList是所有问题的索引的数组
+    questionPool: [],
+    // rateList是部分问题出现频率的数组
+    rateList: [],
     answer1: "",
     answer2: "",
 
@@ -193,7 +237,31 @@ const CURRENT = {
         SETTING.settings.lastBookID = bookId;
         SETTING.SaveSettingsToLocalStorage();
         return true;
-    }
+    },
+
+    /**
+     * "多背几遍按钮"点击事件, 让当前问题的索引(questionId)在questionPool中的出现频率增加, 登记到rateList中
+     */
+    AddRate: () => {
+        let rate = CURRENT.rateList[CURRENT.questionId];
+        if (rate == undefined) {
+            CURRENT.rateList[CURRENT.questionId] = 1.2;
+        } else {
+            CURRENT.rateList[CURRENT.questionId] += .2;
+        }
+    },
+
+    /**
+     * "少背几遍按钮"点击事件, 让当前问题的索引(questionId)在questionPool中的出现频率减少, 登记到rateList中
+     */
+    SubRate: () => {
+        let rate = CURRENT.rateList[CURRENT.questionId];
+        if (rate == undefined) {
+            CURRENT.rateList[CURRENT.questionId] = .8;
+        } else {
+            CURRENT.rateList[CURRENT.questionId] -= .2;
+        }
+    },
 };
 
 
@@ -273,13 +341,18 @@ const PANEL = {
 
     // 载入数据
     loadData: (data) => {
-        // 用^^分割每一行，用##分割每一列, 组成一个二维数组
-        var rows = data.split("^^").map(function(row) {
-            return row.split("##");
-        });
+        // 用正则实现
+        let pat = /\^\^(.+?)\#\#(.+?)((?=[\^\n])|$)/g;
+        // 第一组是题目, 第二组是答案
+        // 对应填入每一行的两列中
+        let rows = [];
+        let match;
+        while (match = pat.exec(data)) {
+            rows.push([match[1], match[2]]);
+        }
 
-        // 去除第一个和其他空元素
-        rows.shift();
+
+        // 去除空元素
         rows = rows.filter(function(row) {
             return row.length > 1;
         });
@@ -423,6 +496,7 @@ const GLOBAL = {
             }
         }
         SETTING.settings.theme_color = value;
+        SETTING.settings.poolSize = $("#stepper-input__input")[0].value;
         SETTING.SaveSettingsToLocalStorage();
         SETTING.ApplySetting();
         hsycms.success();
@@ -454,8 +528,39 @@ const MODE_FillingTheBlank = {
             });
             return finalContent;
         },
+        /**
+         * 设定下一个问题和答案, 并登记到current中
+         */
         SetNextQuestion: () => {
-            let ranNum = (Math.random() * (CURRENT.contentArray.length)) >> 0;
+            // let ranNum = (Math.random() * (CURRENT.contentArray.length)) >> 0;
+
+            // current的问题库(questionPool)是一个数组, 里面存放的是问题的索引
+            // 先判断问题库是否为空, 如果为空, 就把问题库重置
+            // 如果不为空, 就从问题库中随机取一个问题的索引
+            let ranNum = 0;
+            if (CURRENT.questionPool.length == 0) {
+                // set_times是一个问题在问题库标准出现的次数
+                const set_times = SETTING.settings.poolSize;
+                // 每个索引值依据CURRENT.rateList生成的数量
+                // 问题索引对应的rateList位置的值, 代表了该问题的出现概率, 小于0的值代表了该问题不出现, 大于零的值代表了该问题要出现times的次数倍, 没有值则就是times次
+                // 例如rateList[20] = 1.2, 那么问题索引为20的问题, 会出现1.2*times次, 最后四舍五入取整
+                CURRENT.questionPool = [];
+                for (let i = 0; i < CURRENT.contentArray.length; i++) {
+                    let times = 0;
+                    if (CURRENT.rateList[i] > 0) times = Math.round(CURRENT.rateList[i] * times);
+                    else if (CURRENT.rateList[i] <= 0) times = 0;
+                    else times = set_times;
+                    for (let j = 0; j < times; j++) {
+                        CURRENT.questionPool.push(i);
+                    }
+                }
+            }
+
+            // 从问题库中随机取一个问题的索引, 并从问题库中删除该索引
+            ranNum = CURRENT.questionPool.splice((Math.random() * (CURRENT.questionPool.length)) >> 0, 1)[0];
+            CURRENT.questionId = ranNum;
+
+            // 将问题和答案分别登记到current中
             CURRENT.question = CURRENT.contentArray[ranNum][0];
             CURRENT.answer1 = CURRENT.contentArray[ranNum][1];
         },
@@ -537,6 +642,61 @@ function main() {
     PANEL.getDeletRowButton().addEventListener("click", PANEL.deletRow);
     PANEL.getSaveDataButton().addEventListener("click", PANEL.saveData);
     PANEL.getCLoseButton().addEventListener("click", PANEL.hidePanel);
+
+    // stepper-input__button
+    let plusBTN = document.getElementById("stepper-input__button__plus");
+    let minusBTN = document.getElementById("stepper-input__button__minus");
+    plusBTN.addEventListener("click", () => {
+        let input = document.getElementById("stepper-input__input");
+        // 如果input中是整数, 就加一
+        // 否则设置为5
+        if (Number.isInteger(parseInt(input.value))) {
+            input.value = parseInt(input.value) + 1;
+        } else {
+            input.value = 5;
+        }
+    });
+    minusBTN.addEventListener("click", () => {
+        let input = document.getElementById("stepper-input__input");
+        // 如果input中是整数, 就减一
+        // 否则设置为5
+        if (Number.isInteger(parseInt(input.value))) {
+            input.value = parseInt(input.value) - 1;
+        } else {
+            input.value = 5;
+        }
+    });
+
+    // 在设置页加入md转html的innerhtml
+    // md是多行文字
+    let md = `    
+### 操作说明
+整体布局为左右结构, 左侧是导航栏, 右侧是具体内容
+**背书机**面板的上侧显示题目, 下侧显示答案, 点击长条形按钮即可刷题
+**辞书**面板内分为三个子版块
+**选择辞书**中展示着现有的所有录入的辞书的书名, 点击其中一本即选定了现在的辞书, 在那之后可以在背书机面板刷题, 或是在辞书的修改面板中对其进行修改
+
+**录入辞书**可以自行添加辞书, 添加成功后会一直保存
+
+**修改辞书**可以修改现有辞书, 要先在选择辞书面板中选择要修改的辞书, 为了方便修改可以按左下角"填入当前"按钮, 这将自动为你填入现在的辞书信息, 完成修改后再"确认修改"按钮提交
+
+**设置**面板中提供一些自定义选项, 务必记得保存修改! 保存后会立刻呈现效果, 当然, "启动设置"内的效果要在下一次启动时才有效果
+### 格式说明
+在$修改辞书$界面可以用表格的形式呈现辞书内容, 非常方便修改; 此外, 输入的内容都会通过正则表达式进行替换, 但基本的输入规则需要明晰
+**填空类型**: 用 $^^问题1##答案1^^问题2##答案2...$ 的形式录入内容
+在问题和答案中都能插入**格式符号**, &lt;br&gt;表示换行, &lt;hr&gt;表示插入水平分割线
+例如, 输入: $^^drink##n. 饮料&lt;br&gt;v. 喝饮料$ , 那么在答案中, 两个词性将分行呈现
+
+### 关于我
+正如启动动画中所看到的, 我的昵称是**zhyDaDa**, 主打前端设计
+这个背书机是我高三时着手完成的项目, 出发点是为了背书, 更多信息可以浏览这一篇博客->[背书机mobile](https://zhydada.github.io/posts/%E8%83%8C%E4%B9%A6%E6%9C%BAmobile/)
+
+为了追求更强的视觉传达和用户体验, 我花了约1个月的时间重制了背书机, 能很明显的感受到css动画带来的舒适和高级感
+一些心得体会和技术细节我写在了这篇博客->[背书机V2](https://zhydada.github.io/posts/%E8%83%8C%E4%B9%A6%E6%9C%BAv2/)
+如果对我其他作品和博客感兴趣, 欢迎移步至我的小站点->[zhyDaDa的个人站点](https://zhydada.github.io)
+    `;
+    // id为page4-content的div中插入md转html
+    document.getElementById("page4-content").setHTML(md2html(md));
 
 
 }

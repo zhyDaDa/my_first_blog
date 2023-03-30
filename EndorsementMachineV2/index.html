@@ -123,6 +123,11 @@
                     <hr>
                     <article id="target" class="target">#target</article>
                     <button class="showQA-btn btn-16" onclick="GLOBAL.ShowQA()">显示答案 / 下一个问题</button>
+                    <br>
+                    <div id="more-and-less_btn">
+                        <button class="moreQ-btn btn-16" onclick="CURRENT.AddRate()">多背几遍</button>
+                        <button class="lessQ-btn btn-16" onclick="CURRENT.SubRate()">少背几遍</button>
+                    </div>
                 </div>
                 <div id="page2" class="page tab-wrapper">
                     <ul class="tab-menu">
@@ -237,6 +242,22 @@
                                 </div>
                             </div>
                             <h3>色彩偏好</h3>
+                            <div class="setting-cell">
+                                <div class="input_wrapper">
+                                    <input type="checkbox" class="switch_4" id="setting_1">
+                                    <svg class="is_checked" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 426.67 426.67">
+                                        <path
+                                            d="M153.504 366.84c-8.657 0-17.323-3.303-23.927-9.912L9.914 237.265c-13.218-13.218-13.218-34.645 0-47.863 13.218-13.218 34.645-13.218 47.863 0l95.727 95.727 215.39-215.387c13.218-13.214 34.65-13.218 47.86 0 13.22 13.218 13.22 34.65 0 47.863L177.435 356.928c-6.61 6.605-15.27 9.91-23.932 9.91z">
+                                        </path>
+                                    </svg>
+                                    <svg class="is_unchecked" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 212.982 212.982">
+                                        <path
+                                            d="M131.804 106.49l75.936-75.935c6.99-6.99 6.99-18.323 0-25.312-6.99-6.99-18.322-6.99-25.312 0L106.49 81.18 30.555 5.242c-6.99-6.99-18.322-6.99-25.312 0-6.99 6.99-6.99 18.323 0 25.312L81.18 106.49 5.24 182.427c-6.99 6.99-6.99 18.323 0 25.312 6.99 6.99 18.322 6.99 25.312 0L106.49 131.8l75.938 75.937c6.99 6.99 18.322 6.99 25.312 0 6.99-6.99 6.99-18.323 0-25.313l-75.936-75.936z"
+                                            fill-rule="evenodd" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <span>使用深色</span>
+                            </div>
                             <div class="setting-pannel_2">
                                 <div class="setting-pannel_2_1">
                                     <input type="radio" name="color" class="setting-color-grid" value=0 title="original_red&orange" checked>
@@ -251,34 +272,29 @@
                                     <input type="radio" name="color" class="setting-color-grid" value=9 title="Sexy Blue">
                                 </div>
                             </div>
+                            <h3>背书设置</h3>
+                            <div class="setting-cell">
+                                <span>每一轮一个词出现的次数: </span>
+                                <div class="stepper-input">
+                                    <!-- Minus button -->
+                                    <div class="stepper-input__button" id="stepper-input__button__minus">-</div>
+
+                                    <!-- Input container -->
+                                    <div class="stepper-input__content">
+                                        <input type="text" class="stepper-input__input" id="stepper-input__input" value="5" />
+                                    </div>
+
+                                    <!-- Plus button -->
+                                    <div class="stepper-input__button" id="stepper-input__button__plus">+</div>
+                                </div>
+                            </div>
                         </div>
                         <button id="confirm">保存修改</button>
                     </form>
                 </div>
                 <div id="page4" class="page">
                     <div id="page4-content">
-                        <h3>操作说明</h3>
-                        <p>整体布局为左右结构, 左侧是导航栏, 右侧是具体内容</p>
-                        <p><strong>背书机</strong>面板的上侧显示题目, 下侧显示答案, 点击长条形按钮即可刷题</p>
-                        <p><strong>辞书</strong>面板内分为三个子版块</p>
-                        <p><strong>选择辞书</strong>中展示着现有的所有录入的辞书的书名, 点击其中一本即选定了现在的辞书, 在那之后可以在背书机面板刷题, 或是在辞书的修改面板中对其进行修改
-                        </p>
-                        <p><strong>录入辞书</strong>可以自行添加辞书, 添加成功后会一直保存</p>
-
-                        <p><strong>修改辞书</strong>可以修改现有辞书, 要先在选择辞书面板中选择要修改的辞书, 为了方便修改可以按左下角"填入当前"按钮, 这将自动为你填入现在的辞书信息, 完成修改后再"确认修改"按钮提交
-                        </p>
-                        <p><strong>设置</strong>面板中提供一些自定义选项, 务必记得保存修改! 保存后会立刻呈现效果, 当然, "启动设置"内的效果要在下一次启动时才有效果</p>
-                        <h3>格式说明</h3>
-                        <p><strong>填空类型</strong>: 用 <code>^^问题1##答案1^^问题2##答案2...</code> 的形式录入内容</p>
-                        <p>在问题和答案中都能插入<strong>格式符号</strong>, &lt;br&gt;表示换行, &lt;hr&gt;表示插入水平分割线</p>
-                        <p>例如, 输入: <code>^^drink##n. 饮料&lt;br&gt;v. 喝饮料</code> , 那么在答案中, 两个词性将分行呈现</p>
-                        <h3>关于我</h3>
-                        <p>正如启动动画中所看到的, 我的昵称是<strong>zhyDaDa</strong>, 主打前端设计</p>
-                        <p>这个背书机是我高三时着手完成的项目, 出发点是为了背书, 更多信息可以浏览这一篇博客-><a target="_blank" href="https://zhydada.github.io/posts/%E8%83%8C%E4%B9%A6%E6%9C%BAmobile/">背书机mobile</a>
-                        </p>
-                        <p>为了追求更强的视觉传达和用户体验, 我花了约1个月的时间重制了背书机, 能很明显的感受到css动画带来的舒适和高级感</p>
-                        <p>一些心得体会和技术细节我写在了这篇博客-><a target="_blank" href="https://zhydada.github.io/posts/%E8%83%8C%E4%B9%A6%E6%9C%BAv2/">背书机V2</a></p>
-                        <p>如果对我其他作品和博客感兴趣, 欢迎移步至我的小站点-><a target="_blank" href="https://zhydada.github.io">zhyDaDa的个人站点</a></p>
+                        这里是一些说明
                     </div>
                 </div>
                 <span id="close-board"><i class="icon-remove"></i> Close</span>

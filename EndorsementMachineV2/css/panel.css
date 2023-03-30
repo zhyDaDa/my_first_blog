@@ -2,11 +2,13 @@
     position: fixed;
     top: 0;
     left: 0;
+    clear: both;
     width: 100%;
     height: 100%;
     background-color: rgba(255, 255, 255, .8);
     display: none;
     backdrop-filter: blur(2px);
+    overflow-y: auto;
 }
 
 .fullscreen-panel.show {
@@ -16,6 +18,7 @@
 table {
     width: 100%;
     border-collapse: collapse;
+    overflow-y: scroll;
 }
 
 th,
@@ -45,12 +48,14 @@ tr :last-child {
 .panel-buttons {
     display: flex;
     justify-content: space-around;
-    margin-top: 20px;
+    margin: 30px;
+    position: sticky;
+    bottom: 30px;
 }
 
 .panel-buttons button {
     font-size: 16px;
-    padding: 10px 20px;
+    padding: 1vw 2vh;
     border: none;
     border-radius: 4px;
     cursor: pointer;
