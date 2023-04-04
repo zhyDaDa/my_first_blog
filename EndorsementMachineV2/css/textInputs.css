@@ -203,14 +203,15 @@ form .question textarea:valid~label {
     -moz-transform: translate(5px, 0px) scale(0.6);
     -ms-transform: translate(5px, 0px) scale(0.6);
     -webkit-transform: translate(5px, 0px) scale(0.6);
-    transform: translate(5px, 0px) scale(0.6);
+    transform: scale(0.6);
+    top: 48px;
 }
 
 textarea::-webkit-resizer:before {
     content: "\f0c9";
     font-family: "FontAwesome";
     font-size: 16px;
-    color: #333;
+    color: var(--color-deep);
 }
 
 

@@ -342,7 +342,7 @@ const PANEL = {
     // 载入数据
     loadData: (data) => {
         // 用正则实现
-        let pat = /\^\^(.+?)\#\#(.+?)((?=[\^\n])|$)/g;
+        let pat = /\^\^(.+?)\#\#(.+?)((?=[\^\n]|\/\/)|$)/g;
         // 第一组是题目, 第二组是答案
         // 对应填入每一行的两列中
         let rows = [];
@@ -673,13 +673,12 @@ function main() {
 ### 操作说明
 整体布局为左右结构, 左侧是导航栏, 右侧是具体内容
 **背书机**面板的上侧显示题目, 下侧显示答案, 点击长条形按钮即可刷题
+双击背书区可以全屏显示或退出全屏
+底部两个按钮可以调节同一个问题的出现次数
 **辞书**面板内分为三个子版块
-**选择辞书**中展示着现有的所有录入的辞书的书名, 点击其中一本即选定了现在的辞书, 在那之后可以在背书机面板刷题, 或是在辞书的修改面板中对其进行修改
-
-**录入辞书**可以自行添加辞书, 添加成功后会一直保存
-
-**修改辞书**可以修改现有辞书, 要先在选择辞书面板中选择要修改的辞书, 为了方便修改可以按左下角"填入当前"按钮, 这将自动为你填入现在的辞书信息, 完成修改后再"确认修改"按钮提交
-
+   **选择辞书**中展示着现有的所有录入的辞书的书名, 点击其中一本即选定了现在的辞书, 在那之后可以在背书机面板刷题, 或是在辞书的修改面板中对其进行修改
+   **录入辞书**可以自行添加辞书, 添加成功后会一直保存
+   **修改辞书**可以修改现有辞书, 要先在选择辞书面板中选择要修改的辞书, 为了方便修改可以按左下角"填入当前"按钮, 这将自动为你填入现在的辞书信息, 完成修改后再"确认修改"按钮提交
 **设置**面板中提供一些自定义选项, 务必记得保存修改! 保存后会立刻呈现效果, 当然, "启动设置"内的效果要在下一次启动时才有效果
 ### 格式说明
 在$修改辞书$界面可以用表格的形式呈现辞书内容, 非常方便修改; 此外, 输入的内容都会通过正则表达式进行替换, 但基本的输入规则需要明晰
@@ -698,9 +697,31 @@ function main() {
     // id为page4-content的div中插入md转html
     document.getElementById("page4-content").setHTML(md2html(md));
 
-
+    // 一些控件双击进入或退出全屏
+    // 所有textarea
+    let textareas = document.getElementsByTagName("textarea");
+    for (let i = 0; i < textareas.length; i++) {
+        textareas[i].addEventListener("dblclick", () => {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                textareas[i].requestFullscreen();
+            }
+        });
+    }
+    // #target 双击全屏或退出 单击等同于点击按钮$('.showQA-btn')
+    let target = document.getElementById("target");
+    target.addEventListener("click", () => {
+        $('.showQA-btn')[0].click();
+    });
+    target.addEventListener("dblclick", () => {
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        } else {
+            target.requestFullscreen();
+        }
+    });
 }
-
 main();
 
 /* 如果第一次使用 */

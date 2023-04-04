@@ -135,12 +135,31 @@ form>h1 {
     text-align: center;
     min-height: 40vh;
     color: #444;
+    /* pointer-events: none; */
 }
 
 .target>h5 {
     background-color: var(--color-light);
     color: #FFF;
     border-radius: 4px;
+}
+
+
+/* target右下角显示伪元素, 用字符图案表示是全屏按钮 */
+
+.target::after {
+    content: "\f065";
+    font-family: "FontAwesome";
+    font-weight: 480;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    font-size: 1rem;
+    padding: .32rem;
+    background-color: var(--color-light);
+    color: #FFF;
+    border-radius: 4px;
+    /* pointer-events: auto; */
 }
 
 .showQA-btn {
@@ -253,6 +272,10 @@ form>h1 {
     margin-bottom: 2vh;
 }
 
+#page4-content p {
+    line-height: 24px;
+}
+
 #page4-content p strong {
     font-weight: 900;
     background-color: var(--color-light);
@@ -264,6 +287,7 @@ form>h1 {
     font-weight: 600;
     border: solid 2px var(--color-deep);
     padding: 3px;
+    line-height: 24px;
 }
 
 #choose-book {
