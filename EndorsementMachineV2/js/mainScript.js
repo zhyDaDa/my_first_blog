@@ -63,6 +63,7 @@ const SETTING = {
     settings: {
         lastBookID: 0,
         lastBookName: "",
+        poolSize: 5,
         start_showTutorial: true,
         start_showSentence: false,
         start_rememberLastBook: false,
@@ -249,6 +250,7 @@ const CURRENT = {
         } else {
             CURRENT.rateList[CURRENT.questionId] += .2;
         }
+        GLOBAL.DisplayQuestionRate();
     },
 
     /**
@@ -261,6 +263,7 @@ const CURRENT = {
         } else {
             CURRENT.rateList[CURRENT.questionId] -= .2;
         }
+        GLOBAL.DisplayQuestionRate();
     },
 };
 
@@ -280,6 +283,37 @@ function GetTarget() {
  */
 function GetRectify3() {
     return $('#rectify_3')[0];
+}
+
+function generatePattern(str) {
+    // 将字符串转换为16进制
+    let hex = '';
+    for (let i = 0; i < str.length; i++) {
+        hex += str.charCodeAt(i).toString(16);
+    }
+
+    // 创建canvas元素
+    const canvas = document.createElement('canvas');
+    canvas.width = 50;
+    canvas.height = 50;
+    let tds = $("tr#book-info-display>td").get();
+    tds[5].innerHTML = "";
+    tds[5].appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+
+    // 绘制图案
+    for (let i = 0; i < hex.length; i += 6) {
+        const x = parseInt(hex.substr(i, 1), 16) * canvas.width / 16;
+        const y = parseInt(hex.substr(i + 2, 1), 16) * canvas.height / 16;
+        const r = parseInt(hex.substr(i + 4, 1), 16);
+        const color = '#' + hex.substr(i + 5, 3);
+
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.closePath();
+    }
 }
 
 /**
@@ -381,7 +415,7 @@ const PANEL = {
 
             // 遍历每一列
             row.querySelectorAll("td").forEach(function(cell) {
-                rowData.push(cell.innerText);
+                rowData.push(cell.innerHTML);
             });
 
             // 如果该行的两个单元格都为空，则不保存该行数据
@@ -420,6 +454,27 @@ const GLOBAL = {
     DisplayAnswer: () => {
         GetModeByModeName(CURRENT.mode).DisplayQuestionAndAnswer();
         this.flag_showAnswer = false;
+    },
+    DisplayQuestionRate: () => {
+        let currentRate = CURRENT.rateList[CURRENT.questionId];
+        let tds = $("tr#book-info-display>td").get();
+        tds[4].innerHTML = String(currentRate ? currentRate.toFixed(1) : 1);
+    },
+    DealDisplayString: (str) => {
+        let result = str;
+        // 以//开头, 行尾或^^收尾的注释, 去掉
+        result = result.replace(/\/\/(.+?)(?=\^\^|$)/gm, "");
+        result = result.replace(/\\n/g, "<br>");
+        result = result.replace(/\\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+        // 方括号改为<strong>标签
+        result = result.replace(/\[(.+?)\]/g, "<strong>$1</strong>");
+        // 如果有|出现, 那么|隔开的多个答案, 以横向列表显示
+        if (result.indexOf("|") != -1) {
+            result = result.replace(/\|/g, "</li><li>");
+            result = "<ul><li>" + result + "</li></ul>";
+        }
+
+        return result;
     },
 
     ShowQA: () => {
@@ -567,33 +622,49 @@ const MODE_FillingTheBlank = {
         DisplayQuestion: () => {
             let target = GetTarget(),
                 question = CURRENT.question;
-
-            let _html = ``;
-            if (question.length > 40) _html += `<h5 class = "question long-question">`;
-            else _html += `<h5 class = "question short-question">`;
-            _html += CURRENT.question;
-            _html += `</h5>`;
-            target.innerHTML = _html;
+            // 清空target中的内容
+            target.innerHTML = "";
+            // 创建一个h5标签, 存在node变量中
+            let node = document.createElement("h5");
+            // 给h5标签添加一个class
+            node.className = "question";
+            // 如果问题的长度大于40, 就给h5标签添加一个class: long-question, 否则就添加一个class: short-question
+            if (question.length > 40) node.classList.add("long-question");
+            else node.classList.add("short-question");
+            // 将问题的内容添加到h5标签中
+            node.innerHTML = GLOBAL.DealDisplayString(CURRENT.question);
+            // 将h5标签添加到target中
+            target.appendChild(node);
+            // 生成图片的标识
+            generatePattern(question);
+            // 显示问题出现的频次
+            GLOBAL.DisplayQuestionRate();
         },
         DisplayQuestionAndAnswer: () => {
             let target = GetTarget(),
                 question = CURRENT.question,
                 answer = CURRENT.answer1;
+            // 清空target中的内容
+            target.innerHTML = "";
+            // 创建一个h5标签, 存在node1变量中
+            let node1 = document.createElement("h5");
+            // 给h5标签添加一个class
+            node1.className = "question";
+            // 如果问题的长度大于40, 就给h5标签添加一个class: long-question, 否则就添加一个class: short-question
+            if (question.length > 40) node1.classList.add("long-question");
+            else node1.classList.add("short-question");
+            // 将问题的内容添加到h5标签中
+            node1.innerHTML = GLOBAL.DealDisplayString(CURRENT.question);
+            // 将h5标签添加到target中
+            target.appendChild(node1);
 
-            let _html = ``;
-
-            if (question.length > 40) _html += `<h5 class="question long-question">`;
-            else _html += `<h5 class="question short-question">`;
-            _html += CURRENT.question;
-            _html += `</h5>`;
-
-            _html += `<hr>`;
-
-            if (answer.length > 40) _html += `<h7 class="answer long-answer">`;
-            else _html += `<h7 class="answer short-answer">`;
-            _html += CURRENT.answer1;
-            _html += `</h7>`;
-            target.innerHTML = _html;
+            // 创建一个h7标签, 存在node2变量中
+            let node2 = document.createElement("h7");
+            node2.className = "answer";
+            if (answer.length > 40) node2.classList.add("long-answer");
+            else node2.classList.add("short-answer");
+            node2.innerHTML = GLOBAL.DealDisplayString(CURRENT.answer1);
+            target.appendChild(node2);
         },
 
     }
@@ -653,8 +724,9 @@ function main() {
         if (Number.isInteger(parseInt(input.value))) {
             input.value = parseInt(input.value) + 1;
         } else {
-            input.value = 5;
+            input.value = SETTINGS.settings.poolSize;
         }
+
     });
     minusBTN.addEventListener("click", () => {
         let input = document.getElementById("stepper-input__input");
@@ -663,7 +735,7 @@ function main() {
         if (Number.isInteger(parseInt(input.value))) {
             input.value = parseInt(input.value) - 1;
         } else {
-            input.value = 5;
+            input.value = SETTINGS.settings.poolSize;
         }
     });
 
@@ -714,11 +786,12 @@ function main() {
     target.addEventListener("click", () => {
         $('.showQA-btn')[0].click();
     });
-    target.addEventListener("dblclick", () => {
+    let icon = document.querySelector("#fullScreenIcon div");
+    icon.addEventListener("click", () => {
         if (document.fullscreenElement) {
             document.exitFullscreen();
         } else {
-            target.requestFullscreen();
+            target.parentNode.requestFullscreen();
         }
     });
 }

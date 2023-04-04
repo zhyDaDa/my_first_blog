@@ -145,13 +145,26 @@ form>h1 {
 }
 
 
-/* target右下角显示伪元素, 用字符图案表示是全屏按钮 */
+/* fullScreenIcon右下角显示伪元素, 用字符图案表示是全屏按钮 */
 
-.target::after {
+#fullScreenIcon {
+    overflow: visible;
+    display: flex;
+    flex-direction: row-reverse;
+    width: 94%;
+}
+
+#fullScreenIcon div {
+    position: relative;
+    overflow: visible;
+    transform: translateY(-200%);
+}
+
+#fullScreenIcon div::after {
     content: "\f065";
     font-family: "FontAwesome";
     font-weight: 480;
-    position: absolute;
+    position: relative;
     right: 0;
     bottom: 0;
     font-size: 1rem;
@@ -159,7 +172,13 @@ form>h1 {
     background-color: var(--color-light);
     color: #FFF;
     border-radius: 4px;
-    /* pointer-events: auto; */
+    z-index: 99;
+    transform: translateY(-100%);
+}
+
+td>canvas {
+    border: 2px solid var(--color-deep);
+    width: 94%;
 }
 
 .showQA-btn {
