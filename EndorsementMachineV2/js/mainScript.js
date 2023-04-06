@@ -55,7 +55,7 @@ var md2html = function(md) {
 
 }
 
-
+//#region SETTING / BOOKS / CURRENT
 /**
  * 设置, 具体设置的值在settings中
  */
@@ -266,7 +266,7 @@ const CURRENT = {
         GLOBAL.DisplayQuestionRate();
     },
 };
-
+//#endregion
 
 //#region div: 实际功能实现
 /**
@@ -397,12 +397,15 @@ const PANEL = {
         // 清空表格
         table.querySelector("tbody").innerHTML = "";
 
-        // 将二维数组转换为HTML字符串, 添加到表格末尾 
-        table.querySelector("tbody").innerHTML += rows.map(function(row) {
-            return "<tr><td contenteditable='true'>" + row[0] + "</td><td contenteditable='true'>" + row[1] + "</td></tr>";
-        }).join("");
-
-
+        // 在表格末尾添加两个单元格, 用innerText放入数据, 循环
+        rows.forEach(function(row) {
+            var newRow = document.createElement("tr");
+            newRow.innerHTML = "<td contenteditable='true'></td><td contenteditable='true'></td>";
+            newRow.querySelectorAll("td").forEach(function(cell, index) {
+                cell.innerText = row[index];
+            });
+            table.querySelector("tbody").appendChild(newRow);
+        });
     },
 
     // 保存数据
@@ -415,7 +418,7 @@ const PANEL = {
 
             // 遍历每一列
             row.querySelectorAll("td").forEach(function(cell) {
-                rowData.push(cell.innerHTML);
+                rowData.push(cell.innerText);
             });
 
             // 如果该行的两个单元格都为空，则不保存该行数据
