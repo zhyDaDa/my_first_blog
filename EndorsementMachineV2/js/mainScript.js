@@ -3,6 +3,7 @@
 // 把rawBook丢给Book方法, 就能构造出Book这个对象(用New)
 // book在Local内的储存形式是"Book1
 
+//#region div: 工具函数
 var deepCopy = function(source, isArray) {
     var result = {};
     if (isArray) var result = [];
@@ -19,43 +20,43 @@ var deepCopy = function(source, isArray) {
     return result;
 }
 
-
 // 简易的md转html
 var md2html = function(md) {
-    // 分别替换两个尖括号
-    md = md.replace(/</gm, "&lt;");
-    md = md.replace(/>/gm, "&gt;");
+        // 分别替换两个尖括号
+        md = md.replace(/</gm, "&lt;");
+        md = md.replace(/>/gm, "&gt;");
 
-    // 加粗
-    md = md.replace(/\*\*(.+?)\*\*/gm, "<strong>$1</strong>");
+        // 加粗
+        md = md.replace(/\*\*(.+?)\*\*/gm, "<strong>$1</strong>");
 
-    // 代码
-    md = md.replace(/\$(.+?)\$/gm, "<code>$1</code>");
+        // 代码
+        md = md.replace(/\$(.+?)\$/gm, "<code>$1</code>");
 
-    // 链接
-    md = md.replace(/\[(.+?)\]\((.+?)\)/gm, "<a target='_blank' href='$2'>$1</a>");
+        // 链接
+        md = md.replace(/\[(.+?)\]\((.+?)\)/gm, "<a target='_blank' href='$2'>$1</a>");
 
-    // 句子中间的多个空格替换为html中相同数量的空格
-    md = md.replace(/  /gm, "&nbsp;&nbsp;");
+        // 句子中间的多个空格替换为html中相同数量的空格
+        md = md.replace(/  /gm, "&nbsp;&nbsp;");
 
-    // 一级标题
-    md = md.replace(/^# (.+?)$/gm, "<h1>$1</h1>");
+        // 一级标题
+        md = md.replace(/^# (.+?)$/gm, "<h1>$1</h1>");
 
-    // 二级标题
-    md = md.replace(/^## (.+?)$/gm, "<h2>$1</h2>");
+        // 二级标题
+        md = md.replace(/^## (.+?)$/gm, "<h2>$1</h2>");
 
-    // 三级标题
-    md = md.replace(/^### (.+?)$/gm, "<h3>$1</h3>");
+        // 三级标题
+        md = md.replace(/^### (.+?)$/gm, "<h3>$1</h3>");
 
-    // 其余的行前后加上p标签, 如果一行的末尾有2个空格则在末尾加上<br>
-    md = md.replace(/^(.+?)$/gm, "<p>$1</p>");
-    md = md.replace(/<p>(.+?)  <\/p>/gm, "<p>$1</p><br>");
+        // 其余的行前后加上p标签, 如果一行的末尾有2个空格则在末尾加上<br>
+        md = md.replace(/^(.+?)$/gm, "<p>$1</p>");
+        md = md.replace(/<p>(.+?)  <\/p>/gm, "<p>$1</p><br>");
 
-    return md;
+        return md;
 
-}
+    }
+    //#endregion
 
-//#region SETTING / BOOKS / CURRENT
+//#region div: SETTING / BOOKS / CURRENT
 /**
  * 设置, 具体设置的值在settings中
  */
@@ -305,15 +306,61 @@ function generatePattern(str) {
     for (let i = 0; i < hex.length; i += 6) {
         const x = parseInt(hex.substr(i, 1), 16) * canvas.width / 16;
         const y = parseInt(hex.substr(i + 2, 1), 16) * canvas.height / 16;
-        const r = parseInt(hex.substr(i + 4, 1), 16);
+        const r = parseInt(hex.substr(i + 4, 1), 16) + 1;
         const color = '#' + hex.substr(i + 5, 3);
 
-        ctx.beginPath();
-        ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.closePath();
+        // 如果r在1到4之间, 则绘制圆形
+        if (r >= 1 && r <= 4) {
+
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.closePath();
+        }
+        // 如果5到8之间, 则绘制矩形
+        else if (r >= 5 && r <= 8) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, r, r);
+        }
+        // 如果9到12之间, 则绘制三角形
+        else if (r >= 9 && r <= 12) {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + r, y + r);
+            ctx.lineTo(x - r, y + r);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.closePath();
+        }
+        // 如果13到16之间, 则绘制五角星
+        else if (r >= 13 && r <= 16) {
+            ctx.beginPath();
+            ctx.moveTo(x, y - r);
+            ctx.lineTo(x + r * 0.5, y - r * 0.5);
+            ctx.lineTo(x + r, y);
+            ctx.lineTo(x + r * 0.5, y + r * 0.5);
+            ctx.lineTo(x, y + r);
+            ctx.lineTo(x - r * 0.5, y + r * 0.5);
+            ctx.lineTo(x - r, y);
+            ctx.lineTo(x - r * 0.5, y - r * 0.5);
+            ctx.lineTo(x, y - r);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.closePath();
+        }
     }
+
+    function hashString(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = (hash << 5) - hash + str.charCodeAt(i);
+            hash |= 0;
+        }
+        return Math.abs(hash).toString(16).slice(0, 6);
+    }
+    // 将str用hashString转换为16进制, 然后用这个16进制的字符串作为canvas的背景色
+    canvas.style.backgroundColor = '#' + hashString(str);
 }
 
 /**
@@ -442,6 +489,174 @@ const PANEL = {
     }
 }
 
+
+/**
+ * 这个对象聚合了和填空题有关的所有方法
+ */
+const MODE_FillingTheBlank = {
+        DealContent: (rawContent) => {
+            let Q_A = [];
+            Q_A = rawContent.split("^^");
+            Q_A.shift();
+            let finalContent = [];
+            finalContent = Q_A.map((e) => {
+                let t = e.split("##");
+                return [t[0], t[t.length - 1]];
+            });
+            return finalContent;
+        },
+        /**
+         * 设定下一个问题和答案, 并登记到current中
+         */
+        SetNextQuestion: () => {
+            // let ranNum = (Math.random() * (CURRENT.contentArray.length)) >> 0;
+
+            // current的问题库(questionPool)是一个数组, 里面存放的是问题的索引
+            // 先判断问题库是否为空, 如果为空, 就把问题库重置
+            // 如果不为空, 就从问题库中随机取一个问题的索引
+            let ranNum = 0;
+            if (CURRENT.questionPool.length == 0) {
+                // set_times是一个问题在问题库标准出现的次数
+                const set_times = SETTING.settings.poolSize;
+                // 每个索引值依据CURRENT.rateList生成的数量
+                // 问题索引对应的rateList位置的值, 代表了该问题的出现概率, 小于0的值代表了该问题不出现, 大于零的值代表了该问题要出现times的次数倍, 没有值则就是times次
+                // 例如rateList[20] = 1.2, 那么问题索引为20的问题, 会出现1.2*times次, 最后四舍五入取整
+                CURRENT.questionPool = [];
+                for (let i = 0; i < CURRENT.contentArray.length; i++) {
+                    let times = 0;
+                    if (CURRENT.rateList[i] > 0) times = Math.round(CURRENT.rateList[i] * times);
+                    else if (CURRENT.rateList[i] <= 0) times = 0;
+                    else times = set_times;
+                    for (let j = 0; j < times; j++) {
+                        CURRENT.questionPool.push(i);
+                    }
+                }
+            }
+
+            // 从问题库中随机取一个问题的索引, 并从问题库中删除该索引
+            ranNum = CURRENT.questionPool.splice((Math.random() * (CURRENT.questionPool.length)) >> 0, 1)[0];
+            CURRENT.questionId = ranNum;
+
+            // 将问题和答案分别登记到current中
+            CURRENT.question = CURRENT.contentArray[ranNum][0];
+            CURRENT.answer1 = CURRENT.contentArray[ranNum][1];
+        },
+        DisplayQuestion: () => {
+            let target = GetTarget();
+            let question = CURRENT.question;
+            // 清空target中的内容
+            target.innerHTML = "";
+
+            // 判断"|"是否存在
+            if (question.indexOf("|") == -1) {
+                // 创建一个h5标签, 存在node变量中
+                let node = document.createElement("h5");
+                // 给h5标签添加一个class
+                node.className = "question";
+                // 如果问题的长度大于20, 就给h5标签添加一个class: long-question, 否则就添加一个class: short-question
+                if (question.length > 20) node.classList.add("long-question");
+                else node.classList.add("short-question");
+                // 将问题的内容添加到h5标签中
+                node.innerHTML = GLOBAL.DealDisplayString(CURRENT.question);
+                // 将h5标签添加到target中
+                target.appendChild(node);
+            } else {
+                // 建一个ul标签, 容纳多个h5标签
+                let ul = document.createElement("ul");
+                // 如果有|出现, 那么|隔开的多个答案, 分别重复上面的操作
+                let questions = question.split("|");
+                questions.forEach((e) => {
+                    let node = document.createElement("h5");
+                    node.className = "question";
+                    if (e.length > 40) node.classList.add("long-question");
+                    else node.classList.add("short-question");
+                    node.innerHTML = e;
+                    // 将h5标签添加到ul标签中
+                    ul.appendChild(node);
+                });
+                // ul的class是questions
+                ul.className = "questions";
+                // 将ul标签添加到target中
+                target.appendChild(ul);
+            }
+
+
+            // 生成图片的标识
+            generatePattern(question);
+            // 显示问题出现的频次
+            GLOBAL.DisplayQuestionRate();
+        },
+        DisplayQuestionAndAnswer: () => {
+            let target = GetTarget(),
+                question = CURRENT.question,
+                answer = CURRENT.answer1;
+            // 清空target中的内容
+            target.innerHTML = "";
+
+            // 判断"|"是否存在
+            if (question.indexOf("|") == -1) {
+
+                // 创建一个h5标签, 存在node1变量中
+                let node1 = document.createElement("h5");
+                // 给h5标签添加一个class
+                node1.className = "question";
+                // 如果问题的长度大于20, 就给h5标签添加一个class: long-question, 否则就添加一个class: short-question
+                if (question.length > 20) node1.classList.add("long-question");
+                else node1.classList.add("short-question");
+                // 将问题的内容添加到h5标签中
+                node1.innerHTML = GLOBAL.DealDisplayString(CURRENT.question);
+                // 将h5标签添加到target中
+                target.appendChild(node1);
+
+                // 创建一个h7标签, 存在node2变量中
+                let node2 = document.createElement("h7");
+                node2.className = "answer";
+                if (answer.length > 40) node2.classList.add("long-answer");
+                else node2.classList.add("short-answer");
+                node2.innerHTML = GLOBAL.DealDisplayString(CURRENT.answer1);
+                target.appendChild(node2);
+            } else {
+                // 建一个ul标签, 容纳多个h5标签
+                let ul1 = document.createElement("ul");
+                // 如果有|出现, 那么|隔开的多个答案, 分别重复上面的操作
+                let questions = question.split("|");
+                questions.forEach((e) => {
+                    let node = document.createElement("h5");
+                    node.className = "question";
+                    if (e.length > 20) node.classList.add("long-question");
+                    else node.classList.add("short-question");
+                    node.innerHTML = e;
+                    // 将h5标签添加到ul标签中
+                    ul1.appendChild(node);
+                });
+                // ul的class是questions
+                ul1.className = "questions";
+
+                // 建一个ul标签, 容纳多个h7标签
+                let ul2 = document.createElement("ul");
+                // 如果有|出现, 那么|隔开的多个答案, 分别重复上面的操作
+                let answers = answer.split("|");
+                answers.forEach((e) => {
+                    let node = document.createElement("h7");
+                    node.className = "answer";
+                    if (e.length > 40) node.classList.add("long-answer");
+                    else node.classList.add("short-answer");
+                    node.innerHTML = e;
+                    // 将h7标签添加到ul标签中
+                    ul2.appendChild(node);
+                });
+                // ul的class是answers
+                ul2.className = "answers";
+
+                // 将ul标签添加到target中
+                target.appendChild(ul1);
+                target.appendChild(ul2);
+            }
+        },
+
+    }
+    //#endregion
+
 /**
  * 全局变量和全局函数
  */
@@ -463,19 +678,27 @@ const GLOBAL = {
         let tds = $("tr#book-info-display>td").get();
         tds[4].innerHTML = String(currentRate ? currentRate.toFixed(1) : 1);
     },
+    /**
+     * 处理显示字符串
+     * @param {string} str
+     * @returns {string}
+     * @description
+     * 1. 以//开头, 行尾或^^收尾的注释, 去掉
+     * 2. 换行符改为\<br\>标签
+     * 3. 制表符改为4个空格
+     * 4. 方括号改为\<strong\>标签
+     * 5. 不改变分隔符 "|" !!!
+     */
     DealDisplayString: (str) => {
         let result = str;
         // 以//开头, 行尾或^^收尾的注释, 去掉
         result = result.replace(/\/\/(.+?)(?=\^\^|$)/gm, "");
+        // 换行符改为<br>标签
         result = result.replace(/\\n/g, "<br>");
+        // 制表符改为4个空格
         result = result.replace(/\\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
         // 方括号改为<strong>标签
         result = result.replace(/\[(.+?)\]/g, "<strong>$1</strong>");
-        // 如果有|出现, 那么|隔开的多个答案, 以横向列表显示
-        if (result.indexOf("|") != -1) {
-            result = result.replace(/\|/g, "</li><li>");
-            result = "<ul><li>" + result + "</li></ul>";
-        }
 
         return result;
     },
@@ -561,7 +784,6 @@ const GLOBAL = {
         return false;
     },
 
-
     DisplayTutorial: () => {
         //todo:一个遮挡层, 做任意事件就消失
     },
@@ -570,109 +792,6 @@ const GLOBAL = {
         //todo:需要几个一言库, 做一个api接口
     },
 }
-
-/**
- * 这个对象聚合了和填空题有关的所有方法
- */
-const MODE_FillingTheBlank = {
-        DealContent: (rawContent) => {
-            let Q_A = [];
-            Q_A = rawContent.split("^^");
-            Q_A.shift();
-            let finalContent = [];
-            finalContent = Q_A.map((e) => {
-                let t = e.split("##");
-                return [t[0], t[t.length - 1]];
-            });
-            return finalContent;
-        },
-        /**
-         * 设定下一个问题和答案, 并登记到current中
-         */
-        SetNextQuestion: () => {
-            // let ranNum = (Math.random() * (CURRENT.contentArray.length)) >> 0;
-
-            // current的问题库(questionPool)是一个数组, 里面存放的是问题的索引
-            // 先判断问题库是否为空, 如果为空, 就把问题库重置
-            // 如果不为空, 就从问题库中随机取一个问题的索引
-            let ranNum = 0;
-            if (CURRENT.questionPool.length == 0) {
-                // set_times是一个问题在问题库标准出现的次数
-                const set_times = SETTING.settings.poolSize;
-                // 每个索引值依据CURRENT.rateList生成的数量
-                // 问题索引对应的rateList位置的值, 代表了该问题的出现概率, 小于0的值代表了该问题不出现, 大于零的值代表了该问题要出现times的次数倍, 没有值则就是times次
-                // 例如rateList[20] = 1.2, 那么问题索引为20的问题, 会出现1.2*times次, 最后四舍五入取整
-                CURRENT.questionPool = [];
-                for (let i = 0; i < CURRENT.contentArray.length; i++) {
-                    let times = 0;
-                    if (CURRENT.rateList[i] > 0) times = Math.round(CURRENT.rateList[i] * times);
-                    else if (CURRENT.rateList[i] <= 0) times = 0;
-                    else times = set_times;
-                    for (let j = 0; j < times; j++) {
-                        CURRENT.questionPool.push(i);
-                    }
-                }
-            }
-
-            // 从问题库中随机取一个问题的索引, 并从问题库中删除该索引
-            ranNum = CURRENT.questionPool.splice((Math.random() * (CURRENT.questionPool.length)) >> 0, 1)[0];
-            CURRENT.questionId = ranNum;
-
-            // 将问题和答案分别登记到current中
-            CURRENT.question = CURRENT.contentArray[ranNum][0];
-            CURRENT.answer1 = CURRENT.contentArray[ranNum][1];
-        },
-        DisplayQuestion: () => {
-            let target = GetTarget(),
-                question = CURRENT.question;
-            // 清空target中的内容
-            target.innerHTML = "";
-            // 创建一个h5标签, 存在node变量中
-            let node = document.createElement("h5");
-            // 给h5标签添加一个class
-            node.className = "question";
-            // 如果问题的长度大于40, 就给h5标签添加一个class: long-question, 否则就添加一个class: short-question
-            if (question.length > 40) node.classList.add("long-question");
-            else node.classList.add("short-question");
-            // 将问题的内容添加到h5标签中
-            node.innerHTML = GLOBAL.DealDisplayString(CURRENT.question);
-            // 将h5标签添加到target中
-            target.appendChild(node);
-            // 生成图片的标识
-            generatePattern(question);
-            // 显示问题出现的频次
-            GLOBAL.DisplayQuestionRate();
-        },
-        DisplayQuestionAndAnswer: () => {
-            let target = GetTarget(),
-                question = CURRENT.question,
-                answer = CURRENT.answer1;
-            // 清空target中的内容
-            target.innerHTML = "";
-            // 创建一个h5标签, 存在node1变量中
-            let node1 = document.createElement("h5");
-            // 给h5标签添加一个class
-            node1.className = "question";
-            // 如果问题的长度大于40, 就给h5标签添加一个class: long-question, 否则就添加一个class: short-question
-            if (question.length > 40) node1.classList.add("long-question");
-            else node1.classList.add("short-question");
-            // 将问题的内容添加到h5标签中
-            node1.innerHTML = GLOBAL.DealDisplayString(CURRENT.question);
-            // 将h5标签添加到target中
-            target.appendChild(node1);
-
-            // 创建一个h7标签, 存在node2变量中
-            let node2 = document.createElement("h7");
-            node2.className = "answer";
-            if (answer.length > 40) node2.classList.add("long-answer");
-            else node2.classList.add("short-answer");
-            node2.innerHTML = GLOBAL.DealDisplayString(CURRENT.answer1);
-            target.appendChild(node2);
-        },
-
-    }
-    //#endregion
-
 
 /**
  * Div: main函数

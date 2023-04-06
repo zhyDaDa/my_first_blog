@@ -135,10 +135,11 @@ form>h1 {
     text-align: center;
     min-height: 40vh;
     color: #444;
+    background-color: #fff;
     /* pointer-events: none; */
 }
 
-.target>h5 {
+h5.question {
     background-color: var(--color-light);
     color: #FFF;
     border-radius: 4px;
@@ -178,7 +179,7 @@ form>h1 {
 
 td>canvas {
     border: 2px solid var(--color-deep);
-    width: 94%;
+    width: 90%;
 }
 
 .showQA-btn {
@@ -251,6 +252,55 @@ td>canvas {
     font-size: 20px;
     line-height: 25px;
     margin-top: 4px;
+}
+
+ul.questions,
+ul.answers {
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+}
+
+ul.questions h5 {
+    width: 100%;
+    margin: 0.3vw;
+    /* 文字自动换行适应大小 */
+    word-wrap: break-word;
+    word-break: break-all;
+    /* 文字自动换行适应大小 */
+    text-align: center;
+    font-size: 1.2rem;
+    line-height: 1rem;
+    padding: .5rem 0;
+}
+
+ul.answers h7 {
+    width: 100%;
+    margin: 0.3vw 0vw;
+    /* 文字自动换行适应大小 */
+    word-wrap: break-word;
+    word-break: break-all;
+    /* 文字自动换行适应大小 */
+    text-align: center;
+    font-size: 1.2rem;
+    line-height: 1.35rem;
+    padding: .5rem 0;
+    border-left: var(--color-deep) solid .068rem;
+    border-right: var(--color-deep) solid .068rem;
+}
+
+
+/* ul.answers h7 第一个元素 */
+
+ul.answers h7:first-child {
+    border-left: none;
+}
+
+
+/* ul.answers h7 最后一个元素 */
+
+ul.answers h7:last-child {
+    border-right: none;
 }
 
 .centered {
@@ -378,7 +428,8 @@ table.book-info>tbody>tr th:last-child {
 table.book-info>tbody>tr>td {
     color: #555;
     background-color: #fff;
-    border: 1px solid var(--color-light);
+    border: 2px solid var(--color-light);
+    vertical-align: top;
 }
 
 table.book-info>tbody>tr td:first-child {
@@ -387,6 +438,7 @@ table.book-info>tbody>tr td:first-child {
 
 table.book-info>tbody>tr td:last-child {
     border-right: 2px solid var(--color-light);
+    padding: .1rem;
 }
 
 

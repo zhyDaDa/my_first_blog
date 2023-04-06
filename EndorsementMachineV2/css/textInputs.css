@@ -207,13 +207,6 @@ form .question textarea:valid~label {
     top: 48px;
 }
 
-textarea::-webkit-resizer:before {
-    content: "\f0c9";
-    font-family: "FontAwesome";
-    font-size: 16px;
-    color: var(--color-deep);
-}
-
 
 /* 
     {
